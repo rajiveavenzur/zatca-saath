@@ -1,0 +1,1 @@
+"""ZATCA Invoice Generator Application."""

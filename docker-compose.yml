@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: zatca_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-zatca}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-zatca_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-zatca_invoice}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zatca"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zatca_app
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-zatca}:${POSTGRES_PASSWORD:-zatca_dev_password}@db:5432/${POSTGRES_DB:-zatca_invoice}
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-change-in-production}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+    volumes:
+      - ./app:/app/app # Hot reload in development
+      - ./static:/app/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:
