@@ -6,7 +6,7 @@ import logging
 
 from app.config import settings
 from app.database import engine, Base
-from app.api import auth, company, invoice
+from app.api import auth, company, invoice, preview, draft
 
 # Configure logging
 logging.basicConfig(level=getattr(logging, settings.LOG_LEVEL))
@@ -37,6 +37,8 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(company.router)
 app.include_router(invoice.router)
+app.include_router(preview.router)
+app.include_router(draft.router)
 
 
 @app.get("/")

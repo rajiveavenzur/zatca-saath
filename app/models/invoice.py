@@ -1,6 +1,7 @@
 """Invoice model for storing generated invoices."""
-from sqlalchemy import Column, String, DateTime, ForeignKey, Numeric, Text
+from sqlalchemy import Column, String, DateTime, ForeignKey, Numeric, Text, Index
 from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
 from app.database import Base
@@ -43,6 +44,19 @@ class Invoice(Base):
     # Optional notes
     notes = Column(Text, nullable=True)
     
+    # Status field for invoice lifecycle
+    status = Column(String(20), default="generated")  # generated, sent, paid, cancelled
+    
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    user = relationship("User", back_populates="invoices")
+    company = relationship("Company", back_populates="invoices")
+
+    # Indexes for search and performance
+    __table_args__ = (
+        Index('idx_invoice_user_date', 'user_id', 'invoice_date'),
+        Index('idx_invoice_customer', 'customer_name_ar'),
+    )
