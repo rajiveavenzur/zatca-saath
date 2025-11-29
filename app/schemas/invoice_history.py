@@ -11,7 +11,8 @@ class InvoiceHistoryResponse(BaseModel):
     id: UUID
     invoice_number: str
     invoice_date: datetime
-    customer_name: str
+    customer_name_ar: str
+    customer_name_en: Optional[str]
     customer_vat_number: Optional[str]
     subtotal: Decimal
     total_vat: Decimal
@@ -27,9 +28,11 @@ class InvoiceDetailResponse(BaseModel):
     id: UUID
     invoice_number: str
     invoice_date: datetime
-    customer_name: str
+    customer_name_ar: str
+    customer_name_en: Optional[str]
+    customer_address_ar: str
+    customer_address_en: Optional[str]
     customer_vat_number: Optional[str]
-    customer_address: str
     subtotal: Decimal
     total_vat: Decimal
     total_amount: Decimal

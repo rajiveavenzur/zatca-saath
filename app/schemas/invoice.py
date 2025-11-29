@@ -37,12 +37,33 @@ class InvoiceLineItem(BaseModel):
         return self.subtotal + self.vat_amount
 
 
+class InvoiceLabels(BaseModel):
+    """Labels for invoice in specific language."""
+    company_name: str = Field(default="Company Name")
+    vat_number: str = Field(default="VAT Number")
+    invoice_number: str = Field(default="Invoice Number")
+    date: str = Field(default="Date")
+    customer_info: str = Field(default="Customer Information")
+    description: str = Field(default="Description")
+    quantity: str = Field(default="Qty")
+    amount: str = Field(default="Amount")
+    vat: str = Field(default="VAT")
+    total: str = Field(default="Total")
+    subtotal: str = Field(default="Subtotal")
+    vat_total: str = Field(default="VAT (15%)")
+    grand_total: str = Field(default="Total")
+    qr_code: str = Field(default="QR Code")
+    notes: str = Field(default="Notes")
+
+
 class InvoiceRequest(BaseModel):
     """Schema for invoice generation request."""
-    # Customer information
-    customer_name: str = Field(..., min_length=1, max_length=200)
+    # Customer information (Arabic is MANDATORY per ZATCA regulations)
+    customer_name_ar: str = Field(..., min_length=1, max_length=200, description="Customer name in Arabic (MANDATORY)")
+    customer_name_en: Optional[str] = Field(None, max_length=200, description="Customer name in English (optional)")
+    customer_address_ar: str = Field(..., min_length=1, max_length=500, description="Customer address in Arabic (MANDATORY)")
+    customer_address_en: Optional[str] = Field(None, max_length=500, description="Customer address in English (optional)")
     customer_vat_number: Optional[str] = Field(None, pattern=r"^3\d{14}$")
-    customer_address: str = Field(..., min_length=1, max_length=500)
 
     # Invoice details
     invoice_number: str = Field(..., min_length=1, max_length=50)
@@ -53,6 +74,10 @@ class InvoiceRequest(BaseModel):
 
     # Optional fields
     notes: Optional[str] = Field(None, max_length=1000)
+    
+    # Language and labels
+    language: str = Field(default="ar", pattern=r"^(ar|en)$")
+    labels: Optional[InvoiceLabels] = Field(default=None)
 
     @property
     def subtotal(self) -> Decimal:
@@ -72,10 +97,30 @@ class InvoiceRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "customer_name": "مؤسسة التجارة المتطورة",
+                "customer_name_ar": "مؤسسة التجارة المتطورة",
+                "customer_name_en": "Advanced Trading Establishment",
+                "customer_address_ar": "الرياض، المملكة العربية السعودية",
+                "customer_address_en": "Riyadh, Saudi Arabia",
                 "customer_vat_number": "310122393500003",
-                "customer_address": "الرياض، المملكة العربية السعودية",
                 "invoice_number": "INV-2024-001",
+                "language": "ar",
+                "labels": {
+                    "company_name": "اسم الشركة",
+                    "vat_number": "الرقم الضريبي",
+                    "invoice_number": "رقم الفاتورة",
+                    "date": "التاريخ",
+                    "customer_info": "معلومات العميل",
+                    "description": "الوصف",
+                    "quantity": "الكمية",
+                    "amount": "المبلغ",
+                    "vat": "ض.ق.م",
+                    "total": "الإجمالي",
+                    "subtotal": "المجموع الفرعي",
+                    "vat_total": "ضريبة القيمة المضافة (15%)",
+                    "grand_total": "الإجمالي",
+                    "qr_code": "رمز الاستجابة السريعة",
+                    "notes": "ملاحظات"
+                },
                 "line_items": [
                     {
                         "description": "استشارات تقنية",

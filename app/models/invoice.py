@@ -19,10 +19,12 @@ class Invoice(Base):
     invoice_number = Column(String(50), nullable=False, index=True, unique=True)
     invoice_date = Column(DateTime(timezone=True), nullable=False)
     
-    # Customer information
-    customer_name = Column(String(200), nullable=False)
+    # Customer information (Arabic is MANDATORY per ZATCA)
+    customer_name_ar = Column(String(200), nullable=False)
+    customer_name_en = Column(String(200), nullable=True)
+    customer_address_ar = Column(String(500), nullable=False)
+    customer_address_en = Column(String(500), nullable=True)
     customer_vat_number = Column(String(15), nullable=True)
-    customer_address = Column(String(500), nullable=False)
     
     # Financial details
     subtotal = Column(Numeric(precision=10, scale=2), nullable=False)

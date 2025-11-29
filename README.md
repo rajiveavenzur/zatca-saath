@@ -133,6 +133,8 @@ curl -X POST "http://localhost:8000/api/v1/companies" \
 
 ### 4. Generate Invoice
 
+**Arabic Invoice (Default):**
+
 ```bash
 curl -X POST "http://localhost:8000/api/v1/invoices/generate" \
   -H "Authorization: Bearer YOUR_TOKEN" \
@@ -142,6 +144,7 @@ curl -X POST "http://localhost:8000/api/v1/invoices/generate" \
     "customer_vat_number": "310122393500004",
     "customer_address": "جدة، المملكة العربية السعودية",
     "invoice_number": "INV-001",
+    "language": "ar",
     "line_items": [
       {
         "description": "استشارات تقنية",
@@ -154,7 +157,64 @@ curl -X POST "http://localhost:8000/api/v1/invoices/generate" \
   }'
 ```
 
+**English Invoice:**
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/invoices/generate" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer_name": "Test Customer Ltd.",
+    "customer_vat_number": "310122393500004",
+    "customer_address": "Jeddah, Saudi Arabia",
+    "invoice_number": "INV-002",
+    "language": "en",
+    "line_items": [
+      {
+        "description": "Technical Consulting",
+        "quantity": 10,
+        "unit_price": 500.00,
+        "vat_rate": 15.0
+      }
+    ],
+    "notes": "Thank you for your business"
+  }'
+```
+
+**Custom Labels (Advanced):**
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/invoices/generate" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer_name": "شركة العميل",
+    "invoice_number": "INV-003",
+    "language": "ar",
+    "labels": {
+      "invoice_number": "رقم الفاتورة",
+      "date": "التاريخ",
+      "customer_info": "بيانات العميل",
+      "description": "الوصف",
+      "quantity": "الكمية",
+      "amount": "المبلغ",
+      "vat": "الضريبة",
+      "total": "المجموع"
+    },
+    "line_items": [...]
+  }'
+```
+
 Response includes base64-encoded PDF and QR code data.
+
+### Language Support
+
+The API supports two languages:
+
+- **Arabic (`ar`)**: Default, uses Noto Sans Arabic font with proper RTL rendering
+- **English (`en`)**: Uses standard fonts
+
+You can customize all labels in the PDF by providing a `labels` object in the request.
 
 ## 🏗️ Project Structure
 
@@ -212,6 +272,7 @@ This application generates Phase 1 compliant invoices:
 - ✅ **QR Code Format**: TLV (Tag-Length-Value) encoding
 - ✅ **VAT Number**: 15 digits starting with 3
 - ✅ **Arabic Support**: Bilingual invoices (Arabic + English)
+- ✅ **RTL Text Rendering**: Proper right-to-left Arabic text display
 - ✅ **Invoice Elements**: All required fields included
 - ✅ **Calculations**: Automatic VAT calculations
 
@@ -222,6 +283,27 @@ This application generates Phase 1 compliant invoices:
 3. **Tag 3**: Invoice Timestamp (ISO format)
 4. **Tag 4**: Invoice Total (with VAT)
 5. **Tag 5**: VAT Amount
+
+### Arabic Font Configuration
+
+The application uses **Noto Sans Arabic** font for proper Arabic text rendering in PDFs:
+
+- **Font File**: `static/fonts/NotoSansArabic-Regular.ttf`
+- **RTL Support**: Uses `arabic-reshaper` and `python-bidi` libraries
+- **Auto-detection**: Font registration happens automatically at startup
+- **Fallback**: If font is missing, system will use standard fonts (Arabic text may not display correctly)
+
+**To manually update the Arabic font:**
+
+```bash
+# Download Noto Sans Arabic font
+mkdir -p static/fonts
+curl -L "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSansArabic/NotoSansArabic-Regular.ttf" \
+  -o static/fonts/NotoSansArabic-Regular.ttf
+
+# Verify font installation
+ls -lh static/fonts/NotoSansArabic-Regular.ttf
+```
 
 ## 🧪 Testing
 

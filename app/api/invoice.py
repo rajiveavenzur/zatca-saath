@@ -106,9 +106,11 @@ async def generate_invoice(
             company_id=company.id,
             invoice_number=invoice_data.invoice_number,
             invoice_date=invoice_data.invoice_date,
-            customer_name=invoice_data.customer_name,
+            customer_name_ar=invoice_data.customer_name_ar,
+            customer_name_en=invoice_data.customer_name_en,
+            customer_address_ar=invoice_data.customer_address_ar,
+            customer_address_en=invoice_data.customer_address_en,
             customer_vat_number=invoice_data.customer_vat_number,
-            customer_address=invoice_data.customer_address,
             subtotal=invoice_data.subtotal,
             total_vat=invoice_data.total_vat,
             total_amount=invoice_data.total_amount,
@@ -171,7 +173,8 @@ async def get_invoice_history(
         query = query.filter(
             or_(
                 Invoice.invoice_number.ilike(search_pattern),
-                Invoice.customer_name.ilike(search_pattern)
+                Invoice.customer_name_ar.ilike(search_pattern),
+                Invoice.customer_name_en.ilike(search_pattern)
             )
         )
     
@@ -225,9 +228,11 @@ async def get_invoice_by_number(
         id=invoice.id,
         invoice_number=invoice.invoice_number,
         invoice_date=invoice.invoice_date,
-        customer_name=invoice.customer_name,
+        customer_name_ar=invoice.customer_name_ar,
+        customer_name_en=invoice.customer_name_en,
         customer_vat_number=invoice.customer_vat_number,
-        customer_address=invoice.customer_address,
+        customer_address_ar=invoice.customer_address_ar,
+        customer_address_en=invoice.customer_address_en,
         subtotal=invoice.subtotal,
         total_vat=invoice.total_vat,
         total_amount=invoice.total_amount,
